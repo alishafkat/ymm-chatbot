@@ -293,7 +293,7 @@
         branding: {
             logo: '',
             name: '',
-            welcomeText: 'Hi welcome to YMM!',
+            welcomeText: '',
             responseTimeText: '',
             poweredBy: {
                 text: 'Powered by YMM',
@@ -490,8 +490,19 @@
     });
     
     toggleButton.addEventListener('click', () => {
-        chatContainer.classList.toggle('open');
-    });
+    const isOpen = chatContainer.classList.toggle('open');
+
+    // If opened, show the new conversation screen
+    if (isOpen) {
+        const brandHeader = chatContainer.querySelector('.brand-header');
+        const newConversation = chatContainer.querySelector('.new-conversation');
+        const chatInterface = chatContainer.querySelector('.chat-interface');
+
+        if (brandHeader) brandHeader.style.display = 'flex';
+        if (newConversation) newConversation.style.display = 'block';
+        if (chatInterface) chatInterface.classList.remove('active');
+    }
+});
 
     // Add close button handlers
     const closeButtons = chatContainer.querySelectorAll('.close-button');
