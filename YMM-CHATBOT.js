@@ -41,7 +41,6 @@
         align-self: flex-start;
     }
 `;
-
     document.head.appendChild(styleSheet);
 
     const defaultConfig = {
@@ -141,9 +140,8 @@
 
         // Automatically send initial message to n8n
         setTimeout(() => {
-  sendMessage("start");
-}, 100); // delay to let the interface fully render and session initialize
- // Triggers welcome message from backend
+            sendMessage("start");
+        }, 100);
     }
 
     async function sendMessage(message) {
@@ -200,15 +198,21 @@
 
     toggleButton.addEventListener('click', () => {
         const isOpen = chatContainer.classList.toggle('open');
-        if (isOpen) {
-            const brandHeader = chatContainer.querySelector('.brand-header');
-            const newConversation = chatContainer.querySelector('.new-conversation');
-            const chatInterface = chatContainer.querySelector('.chat-interface');
 
-            if (brandHeader) brandHeader.style.display = 'none';
-            if (newConversation) newConversation.style.display = 'none';
-            if (chatInterface) chatInterface.classList.add('active');
-            // Optionally: trigger start message here as well if desired
+        if (isOpen) {
+            // Only start a new conversation if not already started
+            if (!currentSessionId) {
+                startNewConversation();
+            } else {
+                // Resume existing chat session
+                const brandHeader = chatContainer.querySelector('.brand-header');
+                const newConversation = chatContainer.querySelector('.new-conversation');
+                const chatInterface = chatContainer.querySelector('.chat-interface');
+
+                if (brandHeader) brandHeader.style.display = 'none';
+                if (newConversation) newConversation.style.display = 'none';
+                if (chatInterface) chatInterface.classList.add('active');
+            }
         }
     });
 
