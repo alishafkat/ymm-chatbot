@@ -1,4 +1,3 @@
-
 // Chat Widget Script
 (function () {
     // Load Geist font
@@ -10,8 +9,7 @@
     // Inject styles
     const styleSheet = document.createElement('style');
     styleSheet.textContent = `
-        /* Minimal required styles (placeholder) */
-        .chat-message { padding: 10px; margin: 5px; border-radius: 6px; max-width: 80%; }
+        .chat-message { padding: 10px; margin: 5px; border-radius: 6px; max-width: 80%; display: inline-block; }
         .chat-message.user { background: #854fff; color: white; align-self: flex-end; }
         .chat-message.bot { background: #f2f2f2; color: black; align-self: flex-start; }
     `;
@@ -22,8 +20,8 @@
         branding: {
             logo: '',
             name: '',
-            welcomeText: '',
-            responseTimeText: '',
+            welcomeText: '👋 Hello! How can I assist you today?',
+            responseTimeText: 'Typically replies in a few minutes',
             poweredBy: { text: 'Powered by YMM', link: 'https://ymmcourse.com/' }
         },
         style: {
@@ -55,24 +53,24 @@
     const chatContainer = document.createElement('div');
     chatContainer.className = `chat-container${config.style.position === 'left' ? ' position-left' : ''}`;
 
-    const newConversationHTML = \`
+    const newConversationHTML = `
         <div class="brand-header">
-            <img src="\${config.branding.logo}" alt="\${config.branding.name}">
-            <span>\${config.branding.name}</span>
+            <img src="${config.branding.logo}" alt="${config.branding.name}">
+            <span>${config.branding.name}</span>
             <button class="close-button">×</button>
         </div>
         <div class="new-conversation">
-            <h2 class="welcome-text">\${config.branding.welcomeText}</h2>
+            <h2 class="welcome-text">${config.branding.welcomeText}</h2>
             <button class="new-chat-btn">Send us a message</button>
-            <p class="response-text">\${config.branding.responseTimeText}</p>
+            <p class="response-text">${config.branding.responseTimeText}</p>
         </div>
-    \`;
+    `;
 
-    const chatInterfaceHTML = \`
+    const chatInterfaceHTML = `
         <div class="chat-interface">
             <div class="brand-header">
-                <img src="\${config.branding.logo}" alt="\${config.branding.name}">
-                <span>\${config.branding.name}</span>
+                <img src="${config.branding.logo}" alt="${config.branding.name}">
+                <span>${config.branding.name}</span>
                 <button class="close-button">×</button>
             </div>
             <div class="chat-messages"></div>
@@ -81,10 +79,10 @@
                 <button type="submit">Send</button>
             </div>
             <div class="chat-footer">
-                <a href="\${config.branding.poweredBy.link}" target="_blank">\${config.branding.poweredBy.text}</a>
+                <a href="${config.branding.poweredBy.link}" target="_blank">${config.branding.poweredBy.text}</a>
             </div>
         </div>
-    \`;
+    `;
 
     chatContainer.innerHTML = newConversationHTML + chatInterfaceHTML;
 
@@ -113,8 +111,10 @@
         chatInterface.classList.add('active');
 
         const welcomeMessage = config.branding.welcomeText || "Hi! How can I help you today?";
+        console.log("✅ Welcome Message:", welcomeMessage);
+
         const botMessageDiv = document.createElement('div');
-        botMessageDiv.className = 'chat-message bot';
+        botMessageDiv.className = 'chat-message bot welcome-added';
         botMessageDiv.textContent = welcomeMessage;
         messagesContainer.appendChild(botMessageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -141,6 +141,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(messageData)
             });
+
             const data = await response.json();
             const botMessageDiv = document.createElement('div');
             botMessageDiv.className = 'chat-message bot';
@@ -148,11 +149,12 @@
             messagesContainer.appendChild(botMessageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         } catch (error) {
-            console.error('Send message error:', error);
+            console.error('❌ Send message error:', error);
         }
     }
 
     newChatBtn.addEventListener('click', startNewConversation);
+
     sendButton.addEventListener('click', () => {
         const message = textarea.value.trim();
         if (message) {
@@ -173,30 +175,30 @@
     });
 
     toggleButton.addEventListener('click', () => {
-    const isOpen = chatContainer.classList.toggle('open');
+        const isOpen = chatContainer.classList.toggle('open');
 
-    if (isOpen) {
-        const brandHeader = chatContainer.querySelector('.brand-header');
-        const newConversation = chatContainer.querySelector('.new-conversation');
-        const chatInterface = chatContainer.querySelector('.chat-interface');
+        if (isOpen) {
+            const brandHeader = chatContainer.querySelector('.brand-header');
+            const newConversation = chatContainer.querySelector('.new-conversation');
+            const chatInterface = chatContainer.querySelector('.chat-interface');
 
-        if (brandHeader) brandHeader.style.display = 'none';
-        if (newConversation) newConversation.style.display = 'none';
-        if (chatInterface) chatInterface.classList.add('active');
+            if (brandHeader) brandHeader.style.display = 'none';
+            if (newConversation) newConversation.style.display = 'none';
+            if (chatInterface) chatInterface.classList.add('active');
 
-        // ✅ STATIC welcome message on open (only once)
-        if (!messagesContainer.querySelector('.welcome-added')) {
-            const welcomeMessage = config.branding.welcomeText || "Hi! How can I help you today?";
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'chat-message bot welcome-added';
-            botMessageDiv.textContent = welcomeMessage;
-            messagesContainer.appendChild(botMessageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            // Static welcome message on first toggle
+            if (!messagesContainer.querySelector('.welcome-added')) {
+                const welcomeMessage = config.branding.welcomeText || "Hi! How can I help you today?";
+                console.log("✅ Welcome Message (toggle):", welcomeMessage);
+
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.className = 'chat-message bot welcome-added';
+                botMessageDiv.textContent = welcomeMessage;
+                messagesContainer.appendChild(botMessageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
         }
-    }
-});
-
-
+    });
 
     chatContainer.querySelectorAll('.close-button').forEach(button => {
         button.addEventListener('click', () => {
