@@ -8,7 +8,7 @@
 
     // Inject styles
     const styleSheet = document.createElement('style');
-   styleSheet.textContent = `
+    styleSheet.textContent = `
     .chat-messages {
         display: flex;
         flex-direction: column;
@@ -133,19 +133,15 @@
         return crypto.randomUUID();
     }
 
-   async function startNewConversation() {
-    currentSessionId = generateUUID();
-    chatContainer.querySelector('.brand-header').style.display = 'none';
-    chatContainer.querySelector('.new-conversation').style.display = 'none';
-    chatInterface.classList.add('active');
+    async function startNewConversation() {
+        currentSessionId = generateUUID();
+        chatContainer.querySelector('.brand-header').style.display = 'none';
+        chatContainer.querySelector('.new-conversation').style.display = 'none';
+        chatInterface.classList.add('active');
 
-    // Inject welcome message in chat window as bot
-    const botMessageDiv = document.createElement('div');
-    botMessageDiv.className = 'chat-message bot';
-    botMessageDiv.textContent = "Welcome! How can I assist you today?";
-    messagesContainer.appendChild(botMessageDiv);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}
+        // Automatically send initial message to n8n
+        sendMessage("start"); // Triggers welcome message from backend
+    }
 
     async function sendMessage(message) {
         const messageData = {
@@ -209,7 +205,7 @@
             if (brandHeader) brandHeader.style.display = 'none';
             if (newConversation) newConversation.style.display = 'none';
             if (chatInterface) chatInterface.classList.add('active');
-            // No welcome message here either
+            // Optionally: trigger start message here as well if desired
         }
     });
 
@@ -219,4 +215,3 @@
         });
     });
 })();
-
