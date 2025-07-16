@@ -1,3 +1,4 @@
+
 // Chat Widget Script
 (function () {
     // Load Geist font
@@ -40,7 +41,7 @@
         color: black;
         align-self: flex-start;
     }
-`;
+    `;
     document.head.appendChild(styleSheet);
 
     const defaultConfig = {
@@ -133,81 +134,55 @@
     }
 
     async function sendInitialMessage() {
-    const message = "hi";
-    if (!currentSessionId) currentSessionId = generateUUID();
+        const message = "hi";
+        if (!currentSessionId) currentSessionId = generateUUID();
 
-    const userMessageDiv = document.createElement('div');
-    userMessageDiv.className = 'chat-message user';
-    userMessageDiv.textContent = message;
-    messagesContainer.appendChild(userMessageDiv);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        // Optional: Remove if you don’t want "hi" user message
+        const userMessageDiv = document.createElement('div');
+        userMessageDiv.className = 'chat-message user';
+        userMessageDiv.textContent = message;
+        messagesContainer.appendChild(userMessageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-    // 👉 Inject static welcome message immediately
-    const botMessageDiv = document.createElement('div');
-    botMessageDiv.className = 'chat-message bot';
-    botMessageDiv.textContent = "Hi! How can I assist with your financial questions today?";
-    messagesContainer.appendChild(botMessageDiv);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-    // ✅ Optional: Still try backend call
-    try {
-        const response = await fetch(config.webhook.url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                action: "sendMessage",
-                sessionId: currentSessionId,
-                route: config.webhook.route,
-                chatInput: message,
-                metadata: { userId: "" }
-            })
-        });
-
-        const data = await response.json();
-        console.log("Initial bot response:", data);
-        
-        // If backend gives additional message, show it too
-        const reply = Array.isArray(data)
-            ? data[0]?.output
-            : data?.output;
-
-        if (reply) {
-            const extraBotMessage = document.createElement('div');
-            extraBotMessage.className = 'chat-message bot';
-            extraBotMessage.textContent = reply;
-            messagesContainer.appendChild(extraBotMessage);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-    } catch (error) {
-        console.error('Initial message failed:', error);
-    }
-}
-
-
-        const data = await response.json();
-        console.log("Initial bot response:", data);
-
+        // ✅ Inject static welcome message
         const botMessageDiv = document.createElement('div');
         botMessageDiv.className = 'chat-message bot';
-
-        const botText = Array.isArray(data)
-            ? data[0]?.output || "Hi! How can I assist with your financial questions today?"
-            : data?.output || "Hi! How can I assist with your financial questions today?";
-
-        botMessageDiv.textContent = botText;
+        botMessageDiv.textContent = "Hi! How can I assist with your financial questions today?";
         messagesContainer.appendChild(botMessageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-    } catch (error) {
-        console.error('Initial message failed:', error);
-        const errorMessage = document.createElement('div');
-        errorMessage.className = 'chat-message bot';
-        errorMessage.textContent = "Oops! Something went wrong. Please try again later.";
-        messagesContainer.appendChild(errorMessage);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        try {
+            const response = await fetch(config.webhook.url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: "sendMessage",
+                    sessionId: currentSessionId,
+                    route: config.webhook.route,
+                    chatInput: message,
+                    metadata: { userId: "" }
+                })
+            });
+
+            const data = await response.json();
+            console.log("Initial bot response:", data);
+
+            const reply = Array.isArray(data)
+                ? data[0]?.output
+                : data?.output;
+
+            if (reply) {
+                const extraBotMessage = document.createElement('div');
+                extraBotMessage.className = 'chat-message bot';
+                extraBotMessage.textContent = reply;
+                messagesContainer.appendChild(extraBotMessage);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+        } catch (error) {
+            console.error('Initial message failed:', error);
+        }
     }
-}
 
     async function sendMessage(message) {
         if (!currentSessionId) currentSessionId = generateUUID();
