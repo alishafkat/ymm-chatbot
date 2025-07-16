@@ -272,4 +272,13 @@
         });
     });
 })();
+// After grabbing messagesContainer:
+const messagesContainer = chatContainer.querySelector('.chat-messages');
+console.log('[DEBUG] messagesContainer:', messagesContainer);
+
+// Right before adding static bot message:
+console.log('[DEBUG] About to append static welcome message');
+
+// After appending:
+console.log('[DEBUG] Appended static bot message');
 
