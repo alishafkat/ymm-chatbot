@@ -104,13 +104,19 @@
         return crypto.randomUUID();
     }
 
-    async function startNewConversation() {
-        currentSessionId = generateUUID();
-        chatContainer.querySelector('.brand-header').style.display = 'none';
-        chatContainer.querySelector('.new-conversation').style.display = 'none';
-        chatInterface.classList.add('active');
-        // No welcome message
-    }
+   async function startNewConversation() {
+    currentSessionId = generateUUID();
+    chatContainer.querySelector('.brand-header').style.display = 'none';
+    chatContainer.querySelector('.new-conversation').style.display = 'none';
+    chatInterface.classList.add('active');
+
+    // Inject welcome message in chat window as bot
+    const botMessageDiv = document.createElement('div');
+    botMessageDiv.className = 'chat-message bot';
+    botMessageDiv.textContent = "Welcome! How can I assist you today?";
+    messagesContainer.appendChild(botMessageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
 
     async function sendMessage(message) {
         const messageData = {
