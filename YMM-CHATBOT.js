@@ -142,6 +142,14 @@
     messagesContainer.appendChild(userMessageDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
+    // 👉 Inject static welcome message immediately
+    const botMessageDiv = document.createElement('div');
+    botMessageDiv.className = 'chat-message bot';
+    botMessageDiv.textContent = "Hi! How can I assist with your financial questions today?";
+    messagesContainer.appendChild(botMessageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    // ✅ Optional: Still try backend call
     try {
         const response = await fetch(config.webhook.url, {
             method: 'POST',
@@ -154,6 +162,28 @@
                 metadata: { userId: "" }
             })
         });
+
+        const data = await response.json();
+        console.log("Initial bot response:", data);
+        
+        // If backend gives additional message, show it too
+        const reply = Array.isArray(data)
+            ? data[0]?.output
+            : data?.output;
+
+        if (reply) {
+            const extraBotMessage = document.createElement('div');
+            extraBotMessage.className = 'chat-message bot';
+            extraBotMessage.textContent = reply;
+            messagesContainer.appendChild(extraBotMessage);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+    } catch (error) {
+        console.error('Initial message failed:', error);
+    }
+}
+
 
         const data = await response.json();
         console.log("Initial bot response:", data);
