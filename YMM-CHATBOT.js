@@ -184,10 +184,18 @@
         if (newConversation) newConversation.style.display = 'none';
         if (chatInterface) chatInterface.classList.add('active');
 
-        // ✅ Call startNewConversation to trigger welcome message
-        startNewConversation();
+        // ✅ STATIC welcome message on open (only once)
+        if (!messagesContainer.querySelector('.welcome-added')) {
+            const welcomeMessage = config.branding.welcomeText || "Hi! How can I help you today?";
+            const botMessageDiv = document.createElement('div');
+            botMessageDiv.className = 'chat-message bot welcome-added';
+            botMessageDiv.textContent = welcomeMessage;
+            messagesContainer.appendChild(botMessageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
     }
 });
+
 
 
     chatContainer.querySelectorAll('.close-button').forEach(button => {
