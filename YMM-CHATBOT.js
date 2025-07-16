@@ -415,20 +415,26 @@
                 body: JSON.stringify(data)
             });
 
-            const responseData = await response.json();
-            chatContainer.querySelector('.brand-header').style.display = 'none';
-            chatContainer.querySelector('.new-conversation').style.display = 'none';
-            chatInterface.classList.add('active');
+        const responseData = await response.json();
+chatContainer.querySelector('.brand-header').style.display = 'none';
+chatContainer.querySelector('.new-conversation').style.display = 'none';
+chatInterface.classList.add('active');
 
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'chat-message bot';
-            botMessageDiv.textContent = Array.isArray(responseData) ? responseData[0].output : responseData.output;
-            messagesContainer.appendChild(botMessageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    }
+// ✅ Fallback message if response is empty or malformed
+let initialBotMessage = 'Hi! How can I help you today?';
+
+if (Array.isArray(responseData) && responseData[0]?.output) {
+    initialBotMessage = responseData[0].output;
+} else if (typeof responseData === 'object' && responseData.output) {
+    initialBotMessage = responseData.output;
+}
+
+const botMessageDiv = document.createElement('div');
+botMessageDiv.className = 'chat-message bot';
+botMessageDiv.textContent = initialBotMessage;
+messagesContainer.appendChild(botMessageDiv);
+messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
 
     async function sendMessage(message) {
         const messageData = {
