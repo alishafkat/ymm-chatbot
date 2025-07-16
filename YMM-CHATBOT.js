@@ -118,44 +118,22 @@
     }
 
     async function startNewConversation() {
-        currentSessionId = generateUUID();
+  currentSessionId = generateUUID();
 
-        chatContainer.querySelector('.brand-header').style.display = 'none';
-        chatContainer.querySelector('.new-conversation').style.display = 'none';
-        chatInterface.classList.add('active');
+  // Hide intro screen and open chat interface
+  chatContainer.querySelector('.brand-header').style.display = 'none';
+  chatContainer.querySelector('.new-conversation').style.display = 'none';
+  chatInterface.classList.add('active');
 
-        const data = [{
-            action: "loadPreviousSession",
-            sessionId: currentSessionId,
-            route: config.webhook.route,
-            metadata: { userId: "" }
-        }];
+  // Show welcome message
+  const welcomeMessage = config.branding.welcomeText || "Hi! How can I help you today?";
+  const botMessageDiv = document.createElement('div');
+  botMessageDiv.className = 'chat-message bot';
+  botMessageDiv.textContent = welcomeMessage;
+  messagesContainer.appendChild(botMessageDiv);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
 
-        try {
-            const response = await fetch(config.webhook.url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-
-            const responseData = await response.json();
-            let initialBotMessage = 'Hi! How can I help you today?';
-
-            if (Array.isArray(responseData) && responseData[0]?.output) {
-                initialBotMessage = responseData[0].output;
-            } else if (typeof responseData === 'object' && responseData.output) {
-                initialBotMessage = responseData.output;
-            }
-
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'chat-message bot';
-            botMessageDiv.textContent = initialBotMessage;
-            messagesContainer.appendChild(botMessageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        } catch (err) {
-            console.error('Chatbot error:', err);
-        }
-    }
 
     async function sendMessage(message) {
         const messageData = {
