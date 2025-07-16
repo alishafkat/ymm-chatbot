@@ -1,10 +1,12 @@
 // Chat Widget Script
 (function () {
+    // Load Geist font
     const fontLink = document.createElement('link');
     fontLink.rel = 'stylesheet';
     fontLink.href = 'https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-sans/style.css';
     document.head.appendChild(fontLink);
 
+    // Inject styles
     const styleSheet = document.createElement('style');
     styleSheet.textContent = `
     .chat-messages {
@@ -131,20 +133,14 @@
 
     async function sendInitialMessage() {
         const messagesContainer = chatContainer.querySelector('.chat-messages');
+        console.log('[DEBUG] messagesContainer:', messagesContainer);
+
         if (!messagesContainer) {
-            console.warn("⚠️ messagesContainer is not ready.");
+            console.warn('⚠️ messagesContainer is missing, exiting.');
             return;
         }
 
-        const message = "hi";
         if (!currentSessionId) currentSessionId = generateUUID();
-
-        // Optional: Display user's "hi" message
-        const userMessageDiv = document.createElement('div');
-        userMessageDiv.className = 'chat-message user';
-        userMessageDiv.textContent = message;
-        messagesContainer.appendChild(userMessageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
         // ✅ Static welcome message
         const botMessageDiv = document.createElement('div');
@@ -152,36 +148,7 @@
         botMessageDiv.textContent = "Hi! How can I assist with your financial questions today?";
         messagesContainer.appendChild(botMessageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-        try {
-            const response = await fetch(config.webhook.url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: "sendMessage",
-                    sessionId: currentSessionId,
-                    route: config.webhook.route,
-                    chatInput: message,
-                    metadata: { userId: "" }
-                })
-            });
-
-            const data = await response.json();
-            const reply = Array.isArray(data)
-                ? data[0]?.output
-                : data?.output;
-
-            if (reply) {
-                const extraBotMessage = document.createElement('div');
-                extraBotMessage.className = 'chat-message bot';
-                extraBotMessage.textContent = reply;
-                messagesContainer.appendChild(extraBotMessage);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }
-
-        } catch (error) {
-            console.error('Initial message failed:', error);
-        }
+        console.log('[DEBUG] Appended static bot message');
     }
 
     async function sendMessage(message) {
@@ -225,10 +192,11 @@
         chatContainer.querySelector('.new-conversation').style.display = 'none';
         chatInterface.classList.add('active');
 
-        // ✅ Delay to ensure DOM is ready
-        setTimeout(() => {
-            sendInitialMessage();
-        }, 50);
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                sendInitialMessage();
+            }, 0);
+        });
     });
 
     sendButton.addEventListener('click', () => {
@@ -256,9 +224,11 @@
         if (isOpen) {
             if (!currentSessionId) {
                 currentSessionId = generateUUID();
-                setTimeout(() => {
-                    sendInitialMessage();
-                }, 50);
+                requestAnimationFrame(() => {
+                    setTimeout(() => {
+                        sendInitialMessage();
+                    }, 0);
+                });
             }
             chatContainer.querySelector('.brand-header').style.display = 'none';
             chatContainer.querySelector('.new-conversation').style.display = 'none';
@@ -272,13 +242,3 @@
         });
     });
 })();
-// After grabbing messagesContainer:
-const messagesContainer = chatContainer.querySelector('.chat-messages');
-console.log('[DEBUG] messagesContainer:', messagesContainer);
-
-// Right before adding static bot message:
-console.log('[DEBUG] About to append static welcome message');
-
-// After appending:
-console.log('[DEBUG] Appended static bot message');
-
