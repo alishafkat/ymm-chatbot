@@ -1,4 +1,5 @@
-// Chat Widget Script
+<!-- Chat Widget Script -->
+
 (function () {
     // Load Geist font
     const fontLink = document.createElement('link');
@@ -44,12 +45,15 @@
     document.head.appendChild(styleSheet);
 
     const defaultConfig = {
-        webhook: { url: '', route: '' },
+        webhook: {
+            url: 'https://ymmcourse.app.n8n.cloud/webhook/a889d2ae-2159-402f-b326-5f61e90f602e/chat',
+            route: ''
+        },
         branding: {
             logo: '',
-            name: '',
-            welcomeText: '',
-            responseTimeText: '',
+            name: 'YMM Assistant',
+            welcomeText: 'Welcome to YMM!',
+            responseTimeText: 'We usually reply within a few minutes.',
             poweredBy: { text: 'Powered by YMM', link: 'https://ymmcourse.com/' }
         },
         style: {
@@ -138,10 +142,36 @@
         chatContainer.querySelector('.new-conversation').style.display = 'none';
         chatInterface.classList.add('active');
 
-        // Automatically send initial message to n8n
+        // Send a simple "hi" message without session metadata
         setTimeout(() => {
-            sendMessage("start");
+            sendInitialMessage();
         }, 100);
+    }
+
+    async function sendInitialMessage() {
+        const message = "hi";
+
+        const userMessageDiv = document.createElement('div');
+        userMessageDiv.className = 'chat-message user';
+        userMessageDiv.textContent = message;
+        messagesContainer.appendChild(userMessageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        try {
+            const response = await fetch(config.webhook.url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chatInput: message })
+            });
+            const data = await response.json();
+            const botMessageDiv = document.createElement('div');
+            botMessageDiv.className = 'chat-message bot';
+            botMessageDiv.textContent = Array.isArray(data) ? data[0].output : data.output;
+            messagesContainer.appendChild(botMessageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        } catch (error) {
+            console.error('Initial message failed:', error);
+        }
     }
 
     async function sendMessage(message) {
@@ -198,20 +228,13 @@
 
     toggleButton.addEventListener('click', () => {
         const isOpen = chatContainer.classList.toggle('open');
-
         if (isOpen) {
-            // Only start a new conversation if not already started
             if (!currentSessionId) {
                 startNewConversation();
             } else {
-                // Resume existing chat session
-                const brandHeader = chatContainer.querySelector('.brand-header');
-                const newConversation = chatContainer.querySelector('.new-conversation');
-                const chatInterface = chatContainer.querySelector('.chat-interface');
-
-                if (brandHeader) brandHeader.style.display = 'none';
-                if (newConversation) newConversation.style.display = 'none';
-                if (chatInterface) chatInterface.classList.add('active');
+                chatContainer.querySelector('.brand-header').style.display = 'none';
+                chatContainer.querySelector('.new-conversation').style.display = 'none';
+                chatInterface.classList.add('active');
             }
         }
     });
