@@ -173,13 +173,22 @@
     });
 
     toggleButton.addEventListener('click', () => {
-        const isOpen = chatContainer.classList.toggle('open');
-        if (isOpen) {
-            chatContainer.querySelector('.brand-header').style.display = 'flex';
-            chatContainer.querySelector('.new-conversation').style.display = 'block';
-            chatInterface.classList.remove('active');
-        }
-    });
+    const isOpen = chatContainer.classList.toggle('open');
+
+    if (isOpen) {
+        const brandHeader = chatContainer.querySelector('.brand-header');
+        const newConversation = chatContainer.querySelector('.new-conversation');
+        const chatInterface = chatContainer.querySelector('.chat-interface');
+
+        if (brandHeader) brandHeader.style.display = 'none';
+        if (newConversation) newConversation.style.display = 'none';
+        if (chatInterface) chatInterface.classList.add('active');
+
+        // ✅ Call startNewConversation to trigger welcome message
+        startNewConversation();
+    }
+});
+
 
     chatContainer.querySelectorAll('.close-button').forEach(button => {
         button.addEventListener('click', () => {
