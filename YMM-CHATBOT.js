@@ -9,7 +9,7 @@
     // Inject styles
     const styleSheet = document.createElement('style');
     styleSheet.textContent = `
-        .chat-message { padding: 10px; margin: 5px; border-radius: 6px; max-width: 80%; display: inline-block; }
+        .chat-message { padding: 10px; margin: 5px; border-radius: 6px; max-width: 80%; }
         .chat-message.user { background: #854fff; color: white; align-self: flex-end; }
         .chat-message.bot { background: #f2f2f2; color: black; align-self: flex-start; }
     `;
@@ -20,8 +20,8 @@
         branding: {
             logo: '',
             name: '',
-            welcomeText: '👋 Hello! How can I assist you today?',
-            responseTimeText: 'Typically replies in a few minutes',
+            welcomeText: '',
+            responseTimeText: '',
             poweredBy: { text: 'Powered by YMM', link: 'https://ymmcourse.com/' }
         },
         style: {
@@ -109,15 +109,7 @@
         chatContainer.querySelector('.brand-header').style.display = 'none';
         chatContainer.querySelector('.new-conversation').style.display = 'none';
         chatInterface.classList.add('active');
-
-        const welcomeMessage = config.branding.welcomeText || "Hi! How can I help you today?";
-        console.log("✅ Welcome Message:", welcomeMessage);
-
-        const botMessageDiv = document.createElement('div');
-        botMessageDiv.className = 'chat-message bot welcome-added';
-        botMessageDiv.textContent = welcomeMessage;
-        messagesContainer.appendChild(botMessageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        // No welcome message
     }
 
     async function sendMessage(message) {
@@ -141,7 +133,6 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(messageData)
             });
-
             const data = await response.json();
             const botMessageDiv = document.createElement('div');
             botMessageDiv.className = 'chat-message bot';
@@ -149,12 +140,11 @@
             messagesContainer.appendChild(botMessageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         } catch (error) {
-            console.error('❌ Send message error:', error);
+            console.error('Send message error:', error);
         }
     }
 
     newChatBtn.addEventListener('click', startNewConversation);
-
     sendButton.addEventListener('click', () => {
         const message = textarea.value.trim();
         if (message) {
@@ -176,7 +166,6 @@
 
     toggleButton.addEventListener('click', () => {
         const isOpen = chatContainer.classList.toggle('open');
-
         if (isOpen) {
             const brandHeader = chatContainer.querySelector('.brand-header');
             const newConversation = chatContainer.querySelector('.new-conversation');
@@ -185,18 +174,7 @@
             if (brandHeader) brandHeader.style.display = 'none';
             if (newConversation) newConversation.style.display = 'none';
             if (chatInterface) chatInterface.classList.add('active');
-
-            // Static welcome message on first toggle
-            if (!messagesContainer.querySelector('.welcome-added')) {
-                const welcomeMessage = config.branding.welcomeText || "Hi! How can I help you today?";
-                console.log("✅ Welcome Message (toggle):", welcomeMessage);
-
-                const botMessageDiv = document.createElement('div');
-                botMessageDiv.className = 'chat-message bot welcome-added';
-                botMessageDiv.textContent = welcomeMessage;
-                messagesContainer.appendChild(botMessageDiv);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }
+            // No welcome message here either
         }
     });
 
