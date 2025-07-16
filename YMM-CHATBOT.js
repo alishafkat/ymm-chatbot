@@ -1,5 +1,4 @@
-<!-- Chat Widget Script -->
-
+// Chat Widget Script
 (function () {
     // Load Geist font
     const fontLink = document.createElement('link');
@@ -45,15 +44,12 @@
     document.head.appendChild(styleSheet);
 
     const defaultConfig = {
-        webhook: {
-            url: 'https://ymmcourse.app.n8n.cloud/webhook/a889d2ae-2159-402f-b326-5f61e90f602e/chat',
-            route: ''
-        },
+        webhook: { url: '', route: '' },
         branding: {
             logo: '',
-            name: 'YMM Assistant',
-            welcomeText: 'Welcome to YMM!',
-            responseTimeText: 'We usually reply within a few minutes.',
+            name: '',
+            welcomeText: '',
+            responseTimeText: '',
             poweredBy: { text: 'Powered by YMM', link: 'https://ymmcourse.com/' }
         },
         style: {
@@ -136,20 +132,9 @@
         return crypto.randomUUID();
     }
 
-    async function startNewConversation() {
-        currentSessionId = generateUUID();
-        chatContainer.querySelector('.brand-header').style.display = 'none';
-        chatContainer.querySelector('.new-conversation').style.display = 'none';
-        chatInterface.classList.add('active');
-
-        // Send a simple "hi" message without session metadata
-        setTimeout(() => {
-            sendInitialMessage();
-        }, 100);
-    }
-
     async function sendInitialMessage() {
         const message = "hi";
+        if (!currentSessionId) currentSessionId = generateUUID();
 
         const userMessageDiv = document.createElement('div');
         userMessageDiv.className = 'chat-message user';
@@ -161,7 +146,13 @@
             const response = await fetch(config.webhook.url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chatInput: message })
+                body: JSON.stringify({
+                    action: "sendMessage",
+                    sessionId: currentSessionId,
+                    route: config.webhook.route,
+                    chatInput: message,
+                    metadata: { userId: "" }
+                })
             });
             const data = await response.json();
             const botMessageDiv = document.createElement('div');
@@ -175,6 +166,8 @@
     }
 
     async function sendMessage(message) {
+        if (!currentSessionId) currentSessionId = generateUUID();
+
         const messageData = {
             action: "sendMessage",
             sessionId: currentSessionId,
@@ -206,7 +199,14 @@
         }
     }
 
-    newChatBtn.addEventListener('click', startNewConversation);
+    newChatBtn.addEventListener('click', () => {
+        currentSessionId = generateUUID();
+        chatContainer.querySelector('.brand-header').style.display = 'none';
+        chatContainer.querySelector('.new-conversation').style.display = 'none';
+        chatInterface.classList.add('active');
+        sendInitialMessage();
+    });
+
     sendButton.addEventListener('click', () => {
         const message = textarea.value.trim();
         if (message) {
@@ -228,14 +228,15 @@
 
     toggleButton.addEventListener('click', () => {
         const isOpen = chatContainer.classList.toggle('open');
+
         if (isOpen) {
             if (!currentSessionId) {
-                startNewConversation();
-            } else {
-                chatContainer.querySelector('.brand-header').style.display = 'none';
-                chatContainer.querySelector('.new-conversation').style.display = 'none';
-                chatInterface.classList.add('active');
+                currentSessionId = generateUUID();
+                sendInitialMessage();
             }
+            chatContainer.querySelector('.brand-header').style.display = 'none';
+            chatContainer.querySelector('.new-conversation').style.display = 'none';
+            chatInterface.classList.add('active');
         }
     });
 
