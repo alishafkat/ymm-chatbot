@@ -190,3 +190,36 @@
         });
     });
 })();
+styleSheet.textContent = `
+    .chat-messages {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px;
+        height: 200px;
+        overflow-y: auto;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+    }
+
+    .chat-message {
+        padding: 10px;
+        margin: 5px;
+        border-radius: 6px;
+        max-width: 80%;
+        word-wrap: break-word;
+    }
+
+    .chat-message.user {
+        background: #854fff;
+        color: white;
+        align-self: flex-end;
+    }
+
+    .chat-message.bot {
+        background: #f2f2f2;
+        color: black;
+        align-self: flex-start;
+    }
+`;
