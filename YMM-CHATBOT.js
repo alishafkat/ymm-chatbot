@@ -293,7 +293,7 @@
         branding: {
             logo: '',
             name: '',
-            welcomeText: '',
+            welcomeText: 'Hi welcome to YMM!',
             responseTimeText: '',
             poweredBy: {
                 text: 'Powered by YMM',
