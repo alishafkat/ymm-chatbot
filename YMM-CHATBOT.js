@@ -1,13 +1,10 @@
-
 // Chat Widget Script
 (function () {
-    // Load Geist font
     const fontLink = document.createElement('link');
     fontLink.rel = 'stylesheet';
     fontLink.href = 'https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-sans/style.css';
     document.head.appendChild(fontLink);
 
-    // Inject styles
     const styleSheet = document.createElement('style');
     styleSheet.textContent = `
     .chat-messages {
@@ -125,7 +122,6 @@
 
     const newChatBtn = chatContainer.querySelector('.new-chat-btn');
     const chatInterface = chatContainer.querySelector('.chat-interface');
-    const messagesContainer = chatContainer.querySelector('.chat-messages');
     const textarea = chatContainer.querySelector('textarea');
     const sendButton = chatContainer.querySelector('button[type="submit"]');
 
@@ -134,17 +130,23 @@
     }
 
     async function sendInitialMessage() {
+        const messagesContainer = chatContainer.querySelector('.chat-messages');
+        if (!messagesContainer) {
+            console.warn("⚠️ messagesContainer is not ready.");
+            return;
+        }
+
         const message = "hi";
         if (!currentSessionId) currentSessionId = generateUUID();
 
-        // Optional: Remove if you don’t want "hi" user message
+        // Optional: Display user's "hi" message
         const userMessageDiv = document.createElement('div');
         userMessageDiv.className = 'chat-message user';
         userMessageDiv.textContent = message;
         messagesContainer.appendChild(userMessageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-        // ✅ Inject static welcome message
+        // ✅ Static welcome message
         const botMessageDiv = document.createElement('div');
         botMessageDiv.className = 'chat-message bot';
         botMessageDiv.textContent = "Hi! How can I assist with your financial questions today?";
@@ -165,8 +167,6 @@
             });
 
             const data = await response.json();
-            console.log("Initial bot response:", data);
-
             const reply = Array.isArray(data)
                 ? data[0]?.output
                 : data?.output;
@@ -185,6 +185,7 @@
     }
 
     async function sendMessage(message) {
+        const messagesContainer = chatContainer.querySelector('.chat-messages');
         if (!currentSessionId) currentSessionId = generateUUID();
 
         const messageData = {
@@ -223,7 +224,11 @@
         chatContainer.querySelector('.brand-header').style.display = 'none';
         chatContainer.querySelector('.new-conversation').style.display = 'none';
         chatInterface.classList.add('active');
-        sendInitialMessage();
+
+        // ✅ Delay to ensure DOM is ready
+        setTimeout(() => {
+            sendInitialMessage();
+        }, 50);
     });
 
     sendButton.addEventListener('click', () => {
@@ -251,7 +256,9 @@
         if (isOpen) {
             if (!currentSessionId) {
                 currentSessionId = generateUUID();
-                sendInitialMessage();
+                setTimeout(() => {
+                    sendInitialMessage();
+                }, 50);
             }
             chatContainer.querySelector('.brand-header').style.display = 'none';
             chatContainer.querySelector('.new-conversation').style.display = 'none';
@@ -265,3 +272,4 @@
         });
     });
 })();
+
