@@ -133,37 +133,51 @@
     }
 
     async function sendInitialMessage() {
-        const message = "hi";
-        if (!currentSessionId) currentSessionId = generateUUID();
+    const message = "hi";
+    if (!currentSessionId) currentSessionId = generateUUID();
 
-        const userMessageDiv = document.createElement('div');
-        userMessageDiv.className = 'chat-message user';
-        userMessageDiv.textContent = message;
-        messagesContainer.appendChild(userMessageDiv);
+    const userMessageDiv = document.createElement('div');
+    userMessageDiv.className = 'chat-message user';
+    userMessageDiv.textContent = message;
+    messagesContainer.appendChild(userMessageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    try {
+        const response = await fetch(config.webhook.url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: "sendMessage",
+                sessionId: currentSessionId,
+                route: config.webhook.route,
+                chatInput: message,
+                metadata: { userId: "" }
+            })
+        });
+
+        const data = await response.json();
+        console.log("Initial bot response:", data);
+
+        const botMessageDiv = document.createElement('div');
+        botMessageDiv.className = 'chat-message bot';
+
+        const botText = Array.isArray(data)
+            ? data[0]?.output || "Hi! How can I assist with your financial questions today?"
+            : data?.output || "Hi! How can I assist with your financial questions today?";
+
+        botMessageDiv.textContent = botText;
+        messagesContainer.appendChild(botMessageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-        try {
-            const response = await fetch(config.webhook.url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: "sendMessage",
-                    sessionId: currentSessionId,
-                    route: config.webhook.route,
-                    chatInput: message,
-                    metadata: { userId: "" }
-                })
-            });
-            const data = await response.json();
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'chat-message bot';
-            botMessageDiv.textContent = Array.isArray(data) ? data[0].output : data.output;
-            messagesContainer.appendChild(botMessageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        } catch (error) {
-            console.error('Initial message failed:', error);
-        }
+    } catch (error) {
+        console.error('Initial message failed:', error);
+        const errorMessage = document.createElement('div');
+        errorMessage.className = 'chat-message bot';
+        errorMessage.textContent = "Oops! Something went wrong. Please try again later.";
+        messagesContainer.appendChild(errorMessage);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
+}
 
     async function sendMessage(message) {
         if (!currentSessionId) currentSessionId = generateUUID();
